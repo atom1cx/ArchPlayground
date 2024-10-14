@@ -7,14 +7,14 @@ import com.space.arch.playground.domain.model.ListItem
 interface ListComponent {
     val model: Value<List<ListItem>>
 
-    fun itemClicked(item: ListItem)
+    fun itemClicked(id: Long)
 
     fun createNewItem()
 
     fun interface Factory {
         operator fun invoke(
             componentContext: ComponentContext,
-            onItemClicked: (item: ListItem) -> Unit,
+            onItemClicked: (id: Long) -> Unit,
             onNewItemClicked: () -> Unit
         ): ListComponent
     }

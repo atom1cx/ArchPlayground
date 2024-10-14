@@ -11,7 +11,7 @@ import com.space.arch.playground.util.asValue
 class DefaultListComponent(
     componentContext: ComponentContext,
     private val storeFactory: ListStoreFactory,
-    private val onItemClicked: (ListItem) -> Unit,
+    private val onItemClicked: (Long) -> Unit,
     private val onNewItemClicked: () -> Unit
 ) : ListComponent,
     ComponentContext by componentContext {
@@ -20,7 +20,7 @@ class DefaultListComponent(
 
     override val model: Value<List<ListItem>> = store.asValue().map { it.items }
 
-    override fun itemClicked(item: ListItem) = onItemClicked(item)
+    override fun itemClicked(id: Long) = onItemClicked(id)
 
     override fun createNewItem() = onNewItemClicked()
 
@@ -29,7 +29,7 @@ class DefaultListComponent(
     ) : ListComponent.Factory {
         override fun invoke(
             componentContext: ComponentContext,
-            onItemClicked: (item: ListItem) -> Unit,
+            onItemClicked: (id: Long) -> Unit,
             onNewItemClicked: () -> Unit
         ): ListComponent {
             return DefaultListComponent(

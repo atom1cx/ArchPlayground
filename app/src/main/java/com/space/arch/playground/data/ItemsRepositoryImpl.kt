@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
+import kotlin.random.Random
 
 class ItemsRepositoryImpl(
     private val externalScope: CoroutineScope
@@ -42,10 +44,17 @@ class ItemsRepositoryImpl(
         return _items.asSharedFlow()
     }
 
-    override fun getItem(itemId: Long): Flow<ListItem> = _items.map {
-        it.first { item -> item.id == itemId }
-    }.onEach {
-        delay(1000)
+    private val randomizer = Random(123)
+    override fun getItem(itemId: Long): Flow<ListItem> {
+        if (randomizer.nextBoolean()) {
+            return _items.map {
+                it.first { item -> item.id == itemId }
+            }.onEach {
+                delay(1000)
+            }
+        } else {
+            throw IOException("Something went wrong. Please, try again")
+        }
     }
 
     override suspend fun addItem(item: ListItem) {

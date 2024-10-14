@@ -4,6 +4,9 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.logging.store.LoggingStoreFactory
 import com.arkivanov.mvikotlin.timetravel.store.TimeTravelStoreFactory
 import com.space.arch.playground.data.ItemsRepositoryImpl
+import com.space.arch.playground.domain.components.details.DefaultDetailsComponent
+import com.space.arch.playground.domain.components.details.DetailsComponent
+import com.space.arch.playground.domain.components.details.store.DetailsStoreFactory
 import com.space.arch.playground.domain.components.list.DefaultListComponent
 import com.space.arch.playground.domain.components.list.ListComponent
 import com.space.arch.playground.domain.components.list.store.ListStoreFactory
@@ -32,6 +35,12 @@ val appModule = module {
         )
     }
 
+    single<DetailsComponent.Factory> {
+        DefaultDetailsComponent.FactoryImpl(
+            storeFactory = get()
+        )
+    }
+
     // Store factories
     single<StoreFactory> {
         //Use this only for debug, use DefaultStoreFactory instead
@@ -45,6 +54,13 @@ val appModule = module {
         )
     }
 
+    single<DetailsStoreFactory> {
+        DetailsStoreFactory(
+            storeFactory = get(),
+            repository = get()
+        )
+    }
+
     // Repositories
     single<ItemsRepository> {
         ItemsRepositoryImpl(
@@ -54,10 +70,10 @@ val appModule = module {
 
     // Root
     single<RootComponent.Factory> {
-        DefaultRootComponent.Factory(
+        DefaultRootComponent.FactoryImpl(
             listComponentFactory = get(),
-            firstComponentFactory = get(),
-            secondComponentFactory = get()
+            detailsComponentFactory = get(),
+            createComponentFactory = get()
         )
     }
 }

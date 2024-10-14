@@ -8,18 +8,17 @@ import com.arkivanov.decompose.router.stack.pop
 import com.arkivanov.decompose.router.stack.popTo
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
-import com.space.arch.playground.domain.components.firstfeature.FirstFeatureComponent
+import com.space.arch.playground.domain.components.create.CreateComponent
+import com.space.arch.playground.domain.components.details.DetailsComponent
 import com.space.arch.playground.domain.components.list.ListComponent
 import com.space.arch.playground.domain.components.root.RootComponent.Child
-import com.space.arch.playground.domain.components.secondfeature.SecondFeatureComponent
-import com.space.arch.playground.domain.model.ListItem
 import kotlinx.serialization.Serializable
 
 class DefaultRootComponent(
     componentContext: ComponentContext,
     private val listComponentFactory: ListComponent.Factory,
-    private val firstComponentFactory: FirstFeatureComponent.Factory,
-    private val secondComponentFactory: SecondFeatureComponent.Factory,
+    private val detailsComponentFactory: DetailsComponent.Factory,
+    private val createComponentFactory: CreateComponent.Factory,
 ) : RootComponent, ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
@@ -36,16 +35,21 @@ class DefaultRootComponent(
     private fun child(config: Config, childComponentContext: ComponentContext): Child =
         when (config) {
             is Config.List -> Child.List(
-                listComponent(childComponentContext)
+                listComponent(
+                    componentContext = childComponentContext
+                )
             )
 
-            is Config.FirstFeature -> Child.FirstFeature(
-                firstFeatureComponent(childComponentContext)
+            is Config.Details -> Child.FirstFeature(
+                detailsComponent(
+                    componentContext = childComponentContext,
+                    id = config.id
+                )
             )
 
-            is Config.SecondFeature -> Child.SecondFeature(
-                secondFeatureComponent(
-                    childComponentContext
+            is Config.Create -> Child.SecondFeature(
+                createComponent(
+                    componentContext = childComponentContext
                 )
             )
         }
@@ -53,35 +57,32 @@ class DefaultRootComponent(
     private fun listComponent(componentContext: ComponentContext): ListComponent =
         listComponentFactory(
             componentContext = componentContext,
-            onItemClicked = { item ->
-                when (item) {
-                    is ListItem.FirstItem -> {
-                        navigation.push(
-                            Config.FirstFeature(
-                                item
-                            )
-                        )
-                    }
-
-                    is ListItem.SecondItem -> {
-                        navigation.push(
-                            Config.SecondFeature(
-                                item
-                            )
-                        )
-                    }
-                }
+            onItemClicked = { id ->
+                navigation.push(
+                    Config.Details(
+                        id
+                    )
+                )
+            },
+            onNewItemClicked = {
+                navigation.push(
+                    Config.Create
+                )
             }
         )
 
-    private fun firstFeatureComponent(componentContext: ComponentContext): FirstFeatureComponent =
-        firstComponentFactory(
+    private fun detailsComponent(
+        componentContext: ComponentContext,
+        id: Long
+    ): DetailsComponent =
+        detailsComponentFactory(
             componentContext = componentContext,
+            id = id,
             onFinished = navigation::pop,
         )
 
-    private fun secondFeatureComponent(componentContext: ComponentContext): SecondFeatureComponent =
-        secondComponentFactory(
+    private fun createComponent(componentContext: ComponentContext): CreateComponent =
+        createComponentFactory(
             componentContext = componentContext,
             onFinished = navigation::pop,
         )
@@ -90,17 +91,17 @@ class DefaultRootComponent(
         navigation.popTo(index = toIndex)
     }
 
-    class Factory(
+    class FactoryImpl(
         private val listComponentFactory: ListComponent.Factory,
-        private val firstComponentFactory: FirstFeatureComponent.Factory,
-        private val secondComponentFactory: SecondFeatureComponent.Factory
+        private val detailsComponentFactory: DetailsComponent.Factory,
+        private val createComponentFactory: CreateComponent.Factory
     ) : RootComponent.Factory {
         override fun invoke(componentContext: ComponentContext): RootComponent {
             return DefaultRootComponent(
                 componentContext = componentContext,
                 listComponentFactory = listComponentFactory,
-                firstComponentFactory = firstComponentFactory,
-                secondComponentFactory = secondComponentFactory
+                detailsComponentFactory = detailsComponentFactory,
+                createComponentFactory = createComponentFactory
             )
         }
     }
@@ -111,9 +112,9 @@ class DefaultRootComponent(
         data object List : Config
 
         @Serializable
-        data class FirstFeature(val item: ListItem) : Config
+        data class Details(val id: Long) : Config
 
         @Serializable
-        data class SecondFeature(val id: ListItem) : Config
+        data object Create : Config
     }
 }
