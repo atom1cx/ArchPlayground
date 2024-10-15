@@ -85,6 +85,9 @@ class DefaultRootComponent(
         createComponentFactory(
             componentContext = componentContext,
             onFinished = navigation::pop,
+            onError = { errorText ->
+                //TODO: implement
+            }
         )
 
     override fun onBackClicked(toIndex: Int) {

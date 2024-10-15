@@ -4,6 +4,9 @@ import com.arkivanov.mvikotlin.core.store.StoreFactory
 import com.arkivanov.mvikotlin.logging.store.LoggingStoreFactory
 import com.arkivanov.mvikotlin.timetravel.store.TimeTravelStoreFactory
 import com.space.arch.playground.data.ItemsRepositoryImpl
+import com.space.arch.playground.domain.components.create.CreateComponent
+import com.space.arch.playground.domain.components.create.DefaultCreateComponent
+import com.space.arch.playground.domain.components.create.store.CreateStoreFactory
 import com.space.arch.playground.domain.components.details.DefaultDetailsComponent
 import com.space.arch.playground.domain.components.details.DetailsComponent
 import com.space.arch.playground.domain.components.details.store.DetailsStoreFactory
@@ -20,8 +23,6 @@ import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
 
-val koin by lazy { initKoin().koin }
-
 fun initKoin(appDeclaration: KoinAppDeclaration? = null) = startKoin {
     appDeclaration?.invoke(this)
     modules(appModule)
@@ -37,6 +38,12 @@ val appModule = module {
 
     single<DetailsComponent.Factory> {
         DefaultDetailsComponent.FactoryImpl(
+            storeFactory = get()
+        )
+    }
+
+    single<CreateComponent.Factory> {
+        DefaultCreateComponent.FactoryImpl(
             storeFactory = get()
         )
     }
@@ -61,10 +68,17 @@ val appModule = module {
         )
     }
 
+    single<CreateStoreFactory> {
+        CreateStoreFactory(
+            storeFactory = get(),
+            repository = get()
+        )
+    }
+
     // Repositories
     single<ItemsRepository> {
         ItemsRepositoryImpl(
-            CoroutineScope(SupervisorJob() + Dispatchers.Default)
+            CoroutineScope(SupervisorJob() + Dispatchers.IO)
         )
     }
 

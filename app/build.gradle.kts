@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.decompose.decompose)
     implementation(libs.decompose.extensionsComposeJetbrains)
     implementation(libs.essenty.lifecycle)
+    implementation(libs.essenty.lifecycle.coroutines)
     implementation(libs.koin)
     implementation(libs.mvi.android)
     implementation(libs.mvi.main)
