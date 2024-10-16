@@ -49,7 +49,9 @@ class DetailsStoreFactory(
             scope.launch {
                 repository.getItem(id)
                     .flowOn(Dispatchers.Default)
-                    .catch { dispatch(DetailsStore.Action.PostLoadFailed(it)) }
+                    .catch {
+                        dispatch(DetailsStore.Action.PostLoadFailed(it))
+                    }
                     .collect { dispatch(DetailsStore.Action.DataLoaded(it)) }
             }
 

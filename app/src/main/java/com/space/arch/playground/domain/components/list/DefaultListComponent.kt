@@ -6,7 +6,7 @@ import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.space.arch.playground.domain.components.list.store.ListStoreFactory
 import com.space.arch.playground.domain.model.ListItem
-import com.space.arch.playground.util.asValue
+import com.space.arch.playground.util.stateAsValue
 
 class DefaultListComponent(
     componentContext: ComponentContext,
@@ -18,7 +18,7 @@ class DefaultListComponent(
 
     private val store = instanceKeeper.getStore { storeFactory.create() }
 
-    override val model: Value<List<ListItem>> = store.asValue().map { it.items }
+    override val model: Value<List<ListItem>> = store.stateAsValue().map { it.items }
 
     override fun itemClicked(id: Long) = onItemClicked(id)
 

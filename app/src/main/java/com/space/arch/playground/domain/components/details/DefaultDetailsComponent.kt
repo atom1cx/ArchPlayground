@@ -6,7 +6,7 @@ import com.arkivanov.decompose.value.operator.map
 import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.space.arch.playground.domain.components.details.store.DetailsStore
 import com.space.arch.playground.domain.components.details.store.DetailsStoreFactory
-import com.space.arch.playground.util.asValue
+import com.space.arch.playground.util.stateAsValue
 
 class DefaultDetailsComponent(
     componentContext: ComponentContext,
@@ -22,7 +22,7 @@ class DefaultDetailsComponent(
         )
     }
 
-    override val model: Value<DetailsComponent.Model> = store.asValue().map {
+    override val model: Value<DetailsComponent.Model> = store.stateAsValue().map {
         when (it) {
             is DetailsStore.State.Error -> {
                 DetailsComponent.Model.Error(
@@ -40,6 +40,10 @@ class DefaultDetailsComponent(
                 )
             }
         }
+    }
+
+    override fun onTryAgain() {
+        store.accept(DetailsStore.Intent.TryAgain)
     }
 
     override fun onBackPressed() = onFinished()

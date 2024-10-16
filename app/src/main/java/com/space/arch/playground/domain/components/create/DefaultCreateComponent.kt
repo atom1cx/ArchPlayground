@@ -8,15 +8,15 @@ import com.arkivanov.mvikotlin.core.instancekeeper.getStore
 import com.arkivanov.mvikotlin.extensions.coroutines.labels
 import com.space.arch.playground.domain.components.create.store.CreateStore
 import com.space.arch.playground.domain.components.create.store.CreateStoreFactory
-import com.space.arch.playground.util.asValue
+import com.space.arch.playground.util.labelsAsValue
+import com.space.arch.playground.util.stateAsValue
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class DefaultCreateComponent(
     componentContext: ComponentContext,
     storeFactory: CreateStoreFactory,
-    private val onFinished: () -> Unit,
-    private val onError: (String) -> Unit
+    private val onFinished: () -> Unit
 ) : CreateComponent,
     ComponentContext by componentContext {
     private val store = instanceKeeper.getStore {
@@ -31,15 +31,15 @@ class DefaultCreateComponent(
                         onFinished()
                     }
 
-                    is CreateStore.Label.ShowError -> {
-                        onError(label.text)
+                    else -> {
+                        // Do nothing
                     }
                 }
             }
         }
     }
 
-    override val model: Value<CreateComponent.Model> = store.asValue().map {
+    override val model: Value<CreateComponent.Model> = store.stateAsValue().map {
         CreateComponent.Model(
             title = it.title,
             subtitle = it.subtitle,
@@ -48,6 +48,19 @@ class DefaultCreateComponent(
             loading = it.processing
         )
     }
+
+    override val event: Value<CreateComponent.Event> =
+        store.labelsAsValue(CreateComponent.Event.Skip).map {
+            when (it) {
+                is CreateStore.Label.ShowError -> {
+                    CreateComponent.Event.Error(it.text)
+                }
+
+                else -> {
+                    CreateComponent.Event.Skip
+                }
+            }
+        }
 
     override fun onTitleChanged(title: String) {
         store.accept(CreateStore.Intent.ChangeTitle(title))
@@ -72,14 +85,12 @@ class DefaultCreateComponent(
     ) : CreateComponent.Factory {
         override fun invoke(
             componentContext: ComponentContext,
-            onError: (String) -> Unit,
             onFinished: () -> Unit
         ): CreateComponent {
             return DefaultCreateComponent(
                 componentContext = componentContext,
                 storeFactory = storeFactory,
-                onFinished = onFinished,
-                onError = onError
+                onFinished = onFinished
             )
         }
     }

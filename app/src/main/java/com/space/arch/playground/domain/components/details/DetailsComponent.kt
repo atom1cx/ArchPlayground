@@ -21,5 +21,7 @@ interface DetailsComponent {
         ): DetailsComponent
     }
 
+    fun onTryAgain()
+
     fun onBackPressed()
 }

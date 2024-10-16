@@ -1,10 +1,11 @@
 package com.space.arch.playground.domain.components.create.store
 
+import com.arkivanov.decompose.Cancellation
 import com.arkivanov.mvikotlin.extensions.coroutines.CoroutineExecutor
 import com.space.arch.playground.domain.components.create.store.CreateStore.Intent
 import com.space.arch.playground.domain.components.create.store.CreateStore.Label
-import com.space.arch.playground.domain.components.create.store.CreateStore.State
 import com.space.arch.playground.domain.components.create.store.CreateStore.Message
+import com.space.arch.playground.domain.components.create.store.CreateStore.State
 import com.space.arch.playground.domain.model.ItemType
 import com.space.arch.playground.domain.model.ListItem
 import com.space.arch.playground.domain.repositories.ItemsRepository
@@ -16,7 +17,7 @@ class CreateExecutor(
     private val repository: ItemsRepository
 ) : CoroutineExecutor<Intent, Unit, State, Message, Label>() {
     override fun executeIntent(intent: Intent) {
-        when(intent) {
+        when (intent) {
             is Intent.ChangeSubtitle -> {
                 dispatch(
                     Message.SubtitleChanged(
@@ -29,6 +30,7 @@ class CreateExecutor(
                     )
                 )
             }
+
             is Intent.ChangeTitle -> {
                 dispatch(
                     Message.TitleChanged(
@@ -41,6 +43,7 @@ class CreateExecutor(
                     )
                 )
             }
+
             is Intent.ChangeType -> {
                 dispatch(
                     Message.TypeChanged(
@@ -48,6 +51,7 @@ class CreateExecutor(
                     )
                 )
             }
+
             Intent.Save -> {
                 scope.launch {
                     val state = state()
@@ -62,16 +66,17 @@ class CreateExecutor(
                                     title = state.title,
                                     subtitle = state.subtitle,
                                     pictureUrl = state.pictureUrl,
-                                    type = if(!state.checkedType) {
+                                    type = if (!state.checkedType) {
                                         ItemType.FIRST
                                     } else {
                                         ItemType.SECOND
                                     }
                                 )
                             )
-                            publish(Label.Created)
                         }
+                        publish(Label.Created)
                     } catch (e: Throwable) {
+                        if (e is Cancellation) throw e
                         publish(Label.ShowError(e.message ?: "Unknown error"))
                     } finally {
                         dispatch(Message.Loading(false))
@@ -82,7 +87,7 @@ class CreateExecutor(
         }
     }
 
-    private fun canSave() : Boolean {
+    private fun canSave(): Boolean {
         return with(state()) {
             title.isNotEmpty() && subtitle.isNotEmpty()
         }

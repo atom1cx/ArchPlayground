@@ -3,7 +3,7 @@ package com.space.arch.playground.data
 import com.space.arch.playground.domain.model.ItemType
 import com.space.arch.playground.domain.model.ListItem
 import com.space.arch.playground.domain.repositories.ItemsRepository
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,15 +11,15 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.random.Random
 
 class ItemsRepositoryImpl(
-    private val externalScope: CoroutineScope
+    private val ioDispatcher: CoroutineDispatcher
 ) : ItemsRepository {
     private val _items = MutableStateFlow(
-        List(20) {
+        List(5) {
             if (it % 2 == 0) {
                 ListItem(
                     id = it.toLong(),
@@ -46,20 +46,22 @@ class ItemsRepositoryImpl(
 
     private val randomizer = Random(123)
     override fun getItem(itemId: Long): Flow<ListItem> {
-        if (randomizer.nextBoolean()) {
-            return _items.map {
-                it.first { item -> item.id == itemId }
-            }.onEach {
-                delay(1000)
+        return _items.map {
+            it.first { item -> item.id == itemId }
+        }.onEach {
+            delay(1000)
+            if (randomizer.nextBoolean()) {
+                throw IOException("Something went wrong. Please, try again")
             }
-        } else {
-            throw IOException("Something went wrong. Please, try again")
         }
     }
 
     override suspend fun addItem(item: ListItem) {
-        externalScope.launch {
+        withContext(ioDispatcher) {
             delay(1000)
+            if (randomizer.nextBoolean()) {
+                throw IOException("Something went wrong. Please, try again")
+            }
             _items.update {
                 it + item.copy(
                     id = (it.size + 1).toLong()

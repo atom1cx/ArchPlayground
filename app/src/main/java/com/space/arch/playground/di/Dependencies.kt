@@ -16,12 +16,12 @@ import com.space.arch.playground.domain.components.list.store.ListStoreFactory
 import com.space.arch.playground.domain.components.root.DefaultRootComponent
 import com.space.arch.playground.domain.components.root.RootComponent
 import com.space.arch.playground.domain.repositories.ItemsRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
+
+val koin by lazy { initKoin().koin }
 
 fun initKoin(appDeclaration: KoinAppDeclaration? = null) = startKoin {
     appDeclaration?.invoke(this)
@@ -78,7 +78,7 @@ val appModule = module {
     // Repositories
     single<ItemsRepository> {
         ItemsRepositoryImpl(
-            CoroutineScope(SupervisorJob() + Dispatchers.IO)
+            Dispatchers.IO
         )
     }
 

@@ -6,6 +6,8 @@ import com.arkivanov.decompose.value.Value
 interface CreateComponent {
     val model: Value<Model>
 
+    val event: Value<Event>
+
     data class Model(
         val title: String,
         val subtitle: String,
@@ -14,10 +16,14 @@ interface CreateComponent {
         val loading: Boolean
     )
 
+    sealed interface Event {
+        data class Error(val text: String) : Event
+        data object Skip : Event
+    }
+
     fun interface Factory {
         operator fun invoke(
             componentContext: ComponentContext,
-            onError: (String) -> Unit,
             onFinished: () -> Unit
         ): CreateComponent
     }

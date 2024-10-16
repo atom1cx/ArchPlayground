@@ -15,8 +15,8 @@ interface RootComponent {
 
     sealed class Child {
         class List(val component: ListComponent) : Child()
-        class FirstFeature(val component: DetailsComponent) : Child()
-        class SecondFeature(val component: CreateComponent) : Child()
+        class DetailsFeature(val component: DetailsComponent) : Child()
+        class CreateFeature(val component: CreateComponent) : Child()
     }
 
     fun interface Factory {

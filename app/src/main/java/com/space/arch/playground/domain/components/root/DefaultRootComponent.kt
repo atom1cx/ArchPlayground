@@ -40,14 +40,14 @@ class DefaultRootComponent(
                 )
             )
 
-            is Config.Details -> Child.FirstFeature(
+            is Config.Details -> Child.DetailsFeature(
                 detailsComponent(
                     componentContext = childComponentContext,
                     id = config.id
                 )
             )
 
-            is Config.Create -> Child.SecondFeature(
+            is Config.Create -> Child.CreateFeature(
                 createComponent(
                     componentContext = childComponentContext
                 )
@@ -84,10 +84,7 @@ class DefaultRootComponent(
     private fun createComponent(componentContext: ComponentContext): CreateComponent =
         createComponentFactory(
             componentContext = componentContext,
-            onFinished = navigation::pop,
-            onError = { errorText ->
-                //TODO: implement
-            }
+            onFinished = navigation::pop
         )
 
     override fun onBackClicked(toIndex: Int) {
