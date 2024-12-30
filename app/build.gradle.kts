@@ -31,11 +31,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         compose = true
@@ -63,7 +63,7 @@ dependencies {
     implementation(libs.decompose.extensionsComposeJetbrains)
     implementation(libs.essenty.lifecycle)
     implementation(libs.essenty.lifecycle.coroutines)
-    implementation(libs.koin)
+    implementation(libs.koin.android)
     implementation(libs.mvi.android)
     implementation(libs.mvi.main)
     implementation(libs.mvi.ext)
@@ -74,6 +74,21 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    api(project(":repository-api"))
+    implementation(project(":repository-impl"))
+
+    implementation(project(":arch-util"))
+    implementation(project(":arch-core"))
+
+    api(project(":list-api"))
+    implementation(project(":list-impl"))
+
+    api(project(":create-api"))
+    implementation(project(":create-impl"))
+
+    api(project(":details-api"))
+    implementation(project(":details-impl"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

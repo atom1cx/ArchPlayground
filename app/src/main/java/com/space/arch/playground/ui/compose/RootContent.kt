@@ -7,12 +7,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
-import com.space.arch.playground.domain.components.root.PreviewRootComponent
-import com.space.arch.playground.domain.components.root.RootComponent
+import com.space.arch.playground.arch.core.FeatureContentFactory
+import com.space.arch.playground.di.FeatureContentFactoryImpl
+import com.space.arch.playground.domain.PreviewRootComponent
+import com.space.arch.playground.domain.RootComponent
+import com.space.arch.playground.features.create.api.CreateComponent
+import com.space.arch.playground.features.details.api.DetailsComponent
+import com.space.arch.playground.features.list.api.ListComponent
 
 @Composable
 fun RootContent(
     component: RootComponent,
+    featureContentFactory: FeatureContentFactory,
     modifier: Modifier = Modifier,
 ) {
     Children(
@@ -21,23 +27,26 @@ fun RootContent(
         animation = stackAnimation(slide())
     ) {
         when (val child = it.instance) {
-            is RootComponent.Child.DetailsFeature -> {
-                DetailsContent(
+            is RootComponent.Child.Details -> {
+                featureContentFactory.create<DetailsComponent>(child.component)(
                     component = child.component,
-                    modifier = Modifier.fillMaxSize(),
+                    featureContentFactory = featureContentFactory,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
 
             is RootComponent.Child.List -> {
-                ListContent(
+                featureContentFactory.create<ListComponent>(child.component)(
                     component = child.component,
+                    featureContentFactory = featureContentFactory,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
 
-            is RootComponent.Child.CreateFeature -> {
-                CreateContent(
+            is RootComponent.Child.Create -> {
+                featureContentFactory.create<CreateComponent>(child.component)(
                     component = child.component,
+                    featureContentFactory = featureContentFactory,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -48,5 +57,8 @@ fun RootContent(
 @Composable
 @Preview
 private fun RootContentPreview() {
-    RootContent(component = PreviewRootComponent())
+    RootContent(
+        component = PreviewRootComponent(),
+        featureContentFactory = FeatureContentFactoryImpl()
+    )
 }
