@@ -21,4 +21,13 @@ dependencyResolutionManagement {
 
 rootProject.name = "Arch Playground"
 include(":app")
- 
+include(":create-impl")
+include(":create-api")
+include(":arch-util")
+include(":repository-api")
+include(":repository-impl")
+include(":list-api")
+include(":list-impl")
+include(":details-api")
+include(":details-impl")
+include(":arch-core")
